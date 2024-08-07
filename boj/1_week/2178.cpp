@@ -3,21 +3,12 @@
 #include <queue>
 using namespace std;
 
-struct Node
-{
-    int x;
-    int y;
-    int depth;
+pair<int, int> pos[4] = {
+    make_pair(1, 0),
+    make_pair(-1, 0),
+    make_pair(0, 1),
+    make_pair(0, -1),
 };
-
-void enqueue(queue<Node> *q, int x, int y, int depth)
-{
-    Node nodes;
-    nodes.x = x;
-    nodes.y = y;
-    nodes.depth = depth;
-    q->push(nodes);
-}
 
 int main()
 {
@@ -25,7 +16,7 @@ int main()
     cin.tie(NULL);
     int n, m;
     string input;
-    queue<Node> q;
+    queue<pair<int, int>> q;
 
     cin >> n >> m;
     int **arr = new int *[n];
@@ -41,38 +32,22 @@ int main()
             arr[i][j] = input[j] - '0';
         }
     }
-    Node node;
-    node.x = 0;
-    node.y = 0;
-    node.depth = 1;
+    q.push({0, 0});
     visit[0][0] = 1;
-    q.push(node);
     while (!q.empty())
     {
-        int x = q.front().x;
-        int y = q.front().y;
-        if (x - 1 >= 0 && arr[x - 1][y] && !visit[x - 1][y])
+        for (int i = 0; i < 4; i++)
         {
-            visit[x - 1][y] = 1;
-            enqueue(&q, x - 1, y, q.front().depth + 1);
+            int row = q.front().first + pos[i].first;
+            int col = q.front().second + pos[i].second;
+            if (row >= 0 && row < n && col >= 0 && col < m &&
+                !visit[row][col] && arr[row][col])
+            {
+                q.push({row, col});
+                visit[row][col] = visit[q.front().first][q.front().second] + 1;
+            }
         }
-        if (x + 1 < n && arr[x + 1][y] && !visit[x + 1][y])
-        {
-            visit[x + 1][y] = 1;
-            enqueue(&q, x + 1, y, q.front().depth + 1);
-        }
-        if (y - 1 >= 0 && arr[x][y - 1] && !visit[x][y - 1])
-        {
-            visit[x][y - 1] = 1;
-            enqueue(&q, x, y - 1, q.front().depth + 1);
-        }
-        if (y + 1 < m && arr[x][y + 1] && !visit[x][y + 1])
-        {
-            visit[x][y + 1] = 1;
-            enqueue(&q, x, y + 1, q.front().depth + 1);
-        }
-        if (x == n - 1 && y == m - 1 && visit[n - 1][m - 1])
-            cout << q.front().depth;
         q.pop();
     }
+    cout << visit[n - 1][m - 1];
 }
